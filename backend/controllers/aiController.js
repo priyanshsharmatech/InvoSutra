@@ -80,16 +80,20 @@ const generateReminderEmail = async (req, res) => {
       return res.status(404).json({ message: "Invoice not found" });
     }
 
+    // CRITICAL UPDATE: Prepending the '₹' symbol to the amount here
+    const amountDueFormatted = `₹${invoice.total.toFixed(2)}`;
+    const dueDateFormatted = new Date(invoice.dueDate).toLocaleDateString();
+
     const prompt = `
       You are a professional and polite accounting assistant. Write a friendly reminder email to a client about an overdue or upcoming invoice payment.
 
       Use the following details to personalize the email:
       - Client Name: ${invoice.billTo.clientName}
       - Invoice Number: ${invoice.invoiceNumber}
-      - Amount Due: ${invoice.total.toFixed(2)}
-      - Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}
+      - Amount Due (Indian Rupee): ${amountDueFormatted} 
+      - Due Date: ${dueDateFormatted}
 
-      The tone should be friendly but clear. Keep it concise. Start the email with "Subject:".
+      The tone should be friendly but clear. **Crucially, when mentioning the money, always use the Indian Rupee format you were given (e.g., ₹5,000.00).** Keep it concise. Start the email with "Subject:".
     `;
 
     const response = await ai.models.generateContent({
@@ -106,6 +110,7 @@ const generateReminderEmail = async (req, res) => {
     });
   }
 };
+
 
 const getDashboardSummary = async (req, res) => {
   try {

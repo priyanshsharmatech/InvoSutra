@@ -12,7 +12,7 @@ import { API_PATHS } from "../../utils/apiPaths";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import { validateEmail, validatePassword } from "../../utils/helper";
+import { validateEmail, validatePassword } from "../../utils/helper"; // Assuming this utility exists
 
 const Login = () => {
   const { login } = useAuth();
@@ -36,6 +36,8 @@ const Login = () => {
     password: false,
   });
 
+  // --- Input Handlers (Unchanged, good structure) ---
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -43,7 +45,6 @@ const Login = () => {
       [name]: value,
     }));
 
-    // Real-time validation
     if (touched[name]) {
       const newFieldErrors = { ...fieldErrors };
       if (name === "email") {
@@ -64,7 +65,6 @@ const Login = () => {
       [name]: true,
     }));
 
-    // Validate on blur
     const newFieldErrors = { ...fieldErrors };
     if (name === "email") {
       newFieldErrors.email = validateEmail(formData.email);
@@ -79,6 +79,8 @@ const Login = () => {
     const passwordError = validatePassword(formData.password);
     return !emailError && !passwordError && formData.email && formData.password;
   };
+
+  // --- Submission Handler (CRITICAL FIX applied here) ---
 
   const handleSubmit = async () => {
     // Validate all fields before submission
@@ -109,12 +111,17 @@ const Login = () => {
 
         if (token) {
           setSuccess("Login successful");
+          
+          // 1. Synchronously update AuthContext and localStorage
           login(response.data, token);
 
-          // Redirect based on role
+          // 2. FIX: Use setTimeout(..., 0) with client-side navigation (navigate)
+          // This forces the navigation instruction to be executed only after 
+          // the React rendering cycle has processed the new isAuthenticated=true state.
+          // This prevents the 'Not Found' flash.
           setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 2000);
+            navigate("/dashboard", { replace: true });
+          }, 0); 
         }
       } else {
         setError(response.data.message || "Invalid credentials");
@@ -129,6 +136,8 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  // --- JSX Rendering (Unchanged) ---
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">

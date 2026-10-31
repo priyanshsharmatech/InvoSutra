@@ -1,15 +1,10 @@
 import React, { useState } from "react";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  Lock,
-  FileText,
-  ArrowRight,
-  User,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight, User } from "lucide-react";
 import { API_PATHS } from "../../utils/apiPaths";
+import LogoMark from "../../components/ui/LogoMark";
+import Checkbox from "../../components/ui/Checkbox";
+import AuthLayout from "../../components/auth/AuthLayout";
+import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -216,28 +211,28 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-sm">
+    <AuthLayout>
+      <div className="w-full max-w-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700 ring-1 ring-slate-200/60 dark:ring-slate-700 shadow-lg p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-950 to-blue-900 rounded-xl mx-auto mb-6 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-white" />
+          <div className="flex justify-center mb-6">
+            <LogoMark size={48} />
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
             Create Account
           </h1>
-          <p className="text-gray-600 text-sm">Join InvoSutra today</p>
+          <p className="text-gray-600 dark:text-slate-300 text-sm">Join InvoSutra today</p>
         </div>
 
         {/* Form */}
         <div className="space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Full Name
             </label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="name"
                 type="text"
@@ -245,10 +240,10 @@ const SignUp = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.name && touched.name
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Enter your full name"
               />
@@ -260,11 +255,11 @@ const SignUp = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="email"
                 type="email"
@@ -272,10 +267,10 @@ const SignUp = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.email && touched.email
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Enter your email"
               />
@@ -287,11 +282,11 @@ const SignUp = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="password"
                 type={showPassword ? "text" : "password"}
@@ -299,17 +294,18 @@ const SignUp = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.password && touched.password
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Create a password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5 cursor-pointer" />
@@ -327,11 +323,11 @@ const SignUp = () => {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Confirm Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
@@ -339,17 +335,20 @@ const SignUp = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.confirmPassword && touched.confirmPassword
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Confirm your password"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
               >
                 {showConfirmPassword ? (
                   <EyeOff className="w-5 h-5 cursor-pointer" />
@@ -367,8 +366,8 @@ const SignUp = () => {
 
           {/* Error/Success Messages */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+            <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
             </div>
           )}
 
@@ -380,23 +379,31 @@ const SignUp = () => {
 
           {/* Terms & Conditions */}
           <div className="flex items-start pt-2">
-            <input
-              type="checkbox"
-              id="terms"
+            <Checkbox
+              ariaLabel="Agree to Terms of Service and Privacy Policy"
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black mt-1"
-              required
+              className="mt-0.5"
             />
-            <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+            <label className="ml-2 text-sm text-gray-600 dark:text-slate-300">
               I agree to the{" "}
-              <button type="button" className="text-black hover:underline">
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 font-medium hover:underline"
+              >
                 Terms of Service
-              </button>{" "}
+              </a>{" "}
               and{" "}
-              <button type="button" className="text-black hover:underline">
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 font-medium hover:underline"
+              >
                 Privacy Policy
-              </button>
+              </a>
             </label>
           </div>
 
@@ -418,14 +425,16 @@ const SignUp = () => {
               </>
             )}
           </button>
+
+          <GoogleLoginButton text="signup_with" />
         </div>
 
         {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700 text-center">
+          <p className="text-sm text-gray-600 dark:text-slate-300">
             Already have an account?{" "}
             <button
-              className="text-black font-medium hover:underline cursor-pointer"
+              className="text-black dark:text-slate-100 font-medium hover:underline cursor-pointer"
               onClick={() => navigate("/login")}
             >
               Sign in
@@ -433,7 +442,7 @@ const SignUp = () => {
           </p>
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

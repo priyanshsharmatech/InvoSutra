@@ -1,11 +1,14 @@
 import {
   BarChart2,
+  BarChart3,
   FileText,
   LayoutDashboard,
   Mail,
   Plus,
   Sparkles,
   Users,
+  Contact,
+  Repeat,
 } from "lucide-react";
 
 export const FEATURES = [
@@ -102,5 +105,7 @@ export const NAVIGATION_MENU = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
   { id: "invoices", name: "Invoices", icon: FileText },
   { id: "invoices/new", name: "Create Invoice", icon: Plus },
-  { id: "profile", name: "Profile", icon: Users },
+  { id: "clients", name: "Clients", icon: Contact },
+  { id: "recurring", name: "Recurring", icon: Repeat },
+  { id: "reports", name: "Reports", icon: BarChart3 },
 ];

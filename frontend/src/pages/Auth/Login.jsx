@@ -1,14 +1,9 @@
 import React, { useState } from "react";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  Lock,
-  FileText,
-  ArrowRight,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 import { API_PATHS } from "../../utils/apiPaths";
+import LogoMark from "../../components/ui/LogoMark";
+import AuthLayout from "../../components/auth/AuthLayout";
+import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -140,28 +135,28 @@ const Login = () => {
   // --- JSX Rendering (Unchanged) ---
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <AuthLayout>
+      <div className="w-full max-w-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700 ring-1 ring-slate-200/60 dark:ring-slate-700 shadow-lg p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-950 to-blue-900 rounded-xl mx-auto mb-6 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-white" />
+          <div className="flex justify-center mb-6">
+            <LogoMark size={48} />
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100 mb-2">
             Login to Your Account
           </h1>
-          <p className="text-gray-600 text-sm">Welcome back to InvoSutra</p>
+          <p className="text-gray-600 dark:text-slate-300 text-sm">Welcome back to InvoSutra</p>
         </div>
 
         {/* Form */}
         <div className="space-y-4">
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="email"
                 type="email"
@@ -169,10 +164,10 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-4 py-3 border rounded-lg  focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-4 py-3 border rounded-lg  focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.email && touched.email
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Enter your email"
               />
@@ -184,11 +179,11 @@ const Login = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 w-5 h-5" />
               <input
                 name="password"
                 type={showPassword ? "text" : "password"}
@@ -196,17 +191,18 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all ${
+                className={`w-full pl-12 pr-12 py-3 border rounded-lg focus:ring-2 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 ${
                   fieldErrors.password && touched.password
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-black"
+                    : "border-gray-300 dark:border-slate-600 focus:ring-black"
                 }`}
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5 cursor-pointer" />
@@ -222,10 +218,20 @@ const Login = () => {
             )}
           </div>
 
+          <div className="text-right -mt-2">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm text-blue-700 hover:underline cursor-pointer"
+            >
+              Forgot password?
+            </button>
+          </div>
+
           {/* Error/Success Messages */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="rext-red-600 text-sm">{error}</p>
+            <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg">
+              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
             </div>
           )}
 
@@ -256,14 +262,16 @@ const Login = () => {
               </>
             )}
           </button>
+
+          <GoogleLoginButton text="signin_with" />
         </div>
 
         {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700 text-center">
+          <p className="text-sm text-gray-600 dark:text-slate-300">
             Don't have an account?{" "}
             <button
-              className="text-black font-medium hover:underline cursor-pointer"
+              className="text-black dark:text-slate-100 font-medium hover:underline cursor-pointer"
               onClick={() => navigate("/signup")}
             >
               Sign up
@@ -271,7 +279,7 @@ const Login = () => {
           </p>
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

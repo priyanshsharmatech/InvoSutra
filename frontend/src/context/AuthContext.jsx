@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-// import axiosInstance from "../../utils/axiosInstance"; // Recommended for token validation
+import axiosInstance from "../utils/axiosInstance";
+import { API_PATHS } from "../utils/apiPaths";
 
 const AuthContext = createContext();
 
@@ -25,21 +26,28 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const userStr = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-      if (token && userStr) {
-        // BEST PRACTICE: If this were a production app, you should make an 
-        // API call here to validate the 'token' against the backend 
-        // to ensure it hasn't expired. For now, reading localStorage is fine.
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-        setIsAuthenticated(true);
-      }
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Validate the stored token against the server. If it's stale/invalid
+      // (e.g. the user was deleted), this 401s and we clear the session rather
+      // than rendering a "logged in" app whose every API call fails.
+      const { data } = await axiosInstance.get(API_PATHS.AUTH.GET_PROFILE);
+      localStorage.setItem("user", JSON.stringify(data));
+      setUser(data);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error("Auth check failed:", error);
-      logout();
+      // The axios interceptor handles the redirect on 401; just clear state.
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       // MUST be set to false after the check, regardless of success/failure
       setLoading(false); 
@@ -59,6 +67,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Best-effort: clear the httpOnly refresh cookie on the server.
+    axiosInstance.post(API_PATHS.AUTH.LOGOUT).catch(() => {});
+
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");

@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { Briefcase, LogOut, Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import ProfileDropDown from "./ProfileDropDown";
+import LogoMark from "../ui/LogoMark";
+import GlobalSearch from "./GlobalSearch";
+import CommandPalette from "./CommandPalette";
+import ThemeToggle from "../ui/ThemeToggle";
 import { NAVIGATION_MENU } from "../../utils/data";
 
 const NavigationItem = ({ item, isActive, onClick, isCollapsed }) => {
@@ -13,13 +17,13 @@ const NavigationItem = ({ item, isActive, onClick, isCollapsed }) => {
       onClick={() => onClick(item.id)}
       className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group ${
         isActive
-          ? "bg-blue-50 text-blue-900 shadow-sm shadow-blue-50"
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          ? "bg-blue-50 dark:bg-blue-500/15 text-blue-900 dark:text-blue-300 shadow-sm shadow-blue-50 dark:shadow-none"
+          : "text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800/60 hover:text-gray-900 dark:hover:text-slate-100"
       } cursor-pointer`}
     >
       <Icon
         className={`h-5 w-5 flex-shrink-0 ${
-          isActive ? "text-blue-900" : "text-gray-500"
+          isActive ? "text-blue-900 dark:text-blue-300" : "text-gray-500 dark:text-slate-400"
         }`}
       />
       {!isCollapsed && <span className="ml-3 truncate">{item.name}</span>}
@@ -27,14 +31,27 @@ const NavigationItem = ({ item, isActive, onClick, isCollapsed }) => {
   );
 };
 
-const DashboardLayout = ({ children, activeMenu }) => {
+const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNavItem, setActiveNavItem] = useState(activeMenu || "dashboard");
   const [profileDropdownOpen, setProfileDeopdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Derive the active nav item from the current route so it stays correct no
+  // matter how the user navigated (clicks, buttons, links, back/forward, deep
+  // links). Prefer an exact match (e.g. /invoices/new), else the longest
+  // matching prefix (e.g. /invoices/:id -> "invoices").
+  const activeNavItem = (() => {
+    const exact = NAVIGATION_MENU.find((m) => pathname === `/${m.id}`);
+    if (exact) return exact.id;
+    const prefix = NAVIGATION_MENU.filter((m) =>
+      pathname.startsWith(`/${m.id}`)
+    ).sort((a, b) => b.id.length - a.id.length)[0];
+    return prefix?.id || null;
+  })();
 
   // Handle responsive behaviour
   useEffect(() => {
@@ -67,7 +84,6 @@ const DashboardLayout = ({ children, activeMenu }) => {
   }, [profileDropdownOpen]);
 
   const handleNavigation = (itemId) => {
-    setActiveNavItem(itemId);
     navigate(`/${itemId}`);
     if (isMobile) {
       setSidebarOpen(false);
@@ -81,7 +97,8 @@ const DashboardLayout = ({ children, activeMenu }) => {
   const sidebarCollapsed = !isMobile && false;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950">
+      <CommandPalette />
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 transform ${
@@ -92,16 +109,14 @@ const DashboardLayout = ({ children, activeMenu }) => {
             : "translate-x-0"
         } ${
           sidebarCollapsed ? "w-16" : "w-64"
-        } bg-white border-r border-gray-200`}
+        } bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-white/50 dark:border-slate-700 shadow-sm`}
       >
         {/* Company Logo */}
-        <div className="flex items-center h-16 border-b border-gray-200 px-6">
+        <div className="flex items-center h-16 border-b border-slate-200/60 dark:border-slate-700 px-6">
           <Link className="flex items-center space-x-3" to="/dashboard">
-            <div className="h-8 w-8 bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg flex items-center justify-center ">
-              <Briefcase className="h-5 w-5 text-white" />
-            </div>
+            <LogoMark size={34} />
             {!sidebarCollapsed && (
-              <span className="text-gray-900 font-bold text-xl">InvoSutra</span>
+              <span className="text-gray-900 dark:text-slate-100 font-bold text-xl">InvoSutra</span>
             )}
           </Link>
         </div>
@@ -119,16 +134,6 @@ const DashboardLayout = ({ children, activeMenu }) => {
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <button
-            className="w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 transition-all duration-200 cursor-pointer"
-            onClick={logout}
-          >
-            <LogOut className="h-5 w-5 flex-shrink-0 text-gray-500" />
-            {!sidebarCollapsed && <span className="ml-3">Logout</span>}
-          </button>
-        </div>
       </div>
 
       {/* Mobile overlay */}
@@ -136,44 +141,48 @@ const DashboardLayout = ({ children, activeMenu }) => {
         <div
           className="fixed inset-0 bg-black/10 bg-opacity-25 z-40 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Main content */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
           isMobile ? "ml-0" : sidebarCollapsed ? "ml-16" : "ml-64"
         }`}
       >
         {/* Top navbar */}
-        <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
-          <div className="flex items-center space-x-3">
+        <header className="bg-white/60 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/50 dark:border-slate-700 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+          <div className="flex items-center space-x-3 min-w-0">
             {isMobile && (
               <button
                 onClick={toggleSidebar}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800/60 transition-colors duration-200 cursor-pointer flex-shrink-0"
               >
                 {sidebarOpen ? (
-                  <X className="h-5 w-5 text-gray-600" />
+                  <X className="h-5 w-5 text-gray-600 dark:text-slate-300" />
                 ) : (
-                  <Menu className="h-5 w-5 text-gray-600" />
+                  <Menu className="h-5 w-5 text-gray-600 dark:text-slate-300" />
                 )}
               </button>
             )}
 
-            <div>
-              <h1 className="text-base font-semibold text-gray-900">
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-slate-100 truncate">
                 Welcome back, {user?.name}!
               </h1>
-              <p className="text-sm text-gray-500 hidden sm:block">
+              <p className="text-sm text-gray-500 dark:text-slate-400 hidden sm:block">
                 Here's your invoice overview.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+            <GlobalSearch />
+            <ThemeToggle />
             {/* Profile dropdown or other icons */}
-            <ProfileDropDown 
+            <ProfileDropDown
               isOpen={profileDropdownOpen}
               onToggle={(e) => {
                 e.stopPropagation();
@@ -188,7 +197,9 @@ const DashboardLayout = ({ children, activeMenu }) => {
         </header>
 
         {/* Main content area */}
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 no-scrollbar min-w-0">
+          {children}
+        </main>
       </div>
     </div>
   );

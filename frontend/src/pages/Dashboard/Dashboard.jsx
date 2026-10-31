@@ -68,7 +68,7 @@ const Dashboard = () => {
     {
       icon: AlertTriangle,
       label: "Overdue",
-      value: `${summary?.overdueCount ?? 0} · ₹${(
+      value: `${summary?.overdueCount ?? 0} - ₹${(
         summary?.overdueAmount ?? 0
       ).toFixed(2)}`,
       color: "red",
